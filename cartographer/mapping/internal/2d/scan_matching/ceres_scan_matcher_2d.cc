@@ -104,6 +104,24 @@ void CeresScanMatcher2D::Match(const Eigen::Vector2d& target_translation,
 
   *pose_estimate = transform::Rigid2d(
       {ceres_pose_estimate[0], ceres_pose_estimate[1]}, ceres_pose_estimate[2]);
+
+  LOG(INFO) << "About to compute the covariance!\n";
+
+  // Estimate covariance
+  ceres::Covariance::Options options;
+  ceres::Covariance covariance(options);
+
+  std::vector<std::pair<const double*, const double*> > covariance_blocks;
+  covariance_blocks.push_back(
+      std::make_pair(ceres_pose_estimate, ceres_pose_estimate));
+
+  CHECK(covariance.Compute(covariance_blocks, &problem));
+
+  Eigen::Matrix3d pose_cov;
+  covariance.GetCovarianceBlock(ceres_pose_estimate, ceres_pose_estimate,
+                                pose_cov.data());
+
+  LOG(INFO) << "Computed the covariance: " << pose_cov << "\n";
 }
 
 }  // namespace scan_matching
