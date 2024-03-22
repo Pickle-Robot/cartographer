@@ -49,8 +49,8 @@ class CeresScanMatcher2D {
   void Match(const Eigen::Vector2d& target_translation,
              const transform::Rigid2d& initial_pose_estimate,
              const sensor::PointCloud& point_cloud, const Grid2D& grid,
-             transform::Rigid2d* pose_estimate,
-             ceres::Solver::Summary* summary) const;
+             transform::Rigid2d* pose_estimate, ceres::Solver::Summary* summary,
+             Eigen::Matrix3d* cov = nullptr) const;
 
  private:
   const proto::CeresScanMatcherOptions2D options_;

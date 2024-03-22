@@ -65,7 +65,8 @@ void CeresScanMatcher2D::Match(const Eigen::Vector2d& target_translation,
                                const sensor::PointCloud& point_cloud,
                                const Grid2D& grid,
                                transform::Rigid2d* const pose_estimate,
-                               ceres::Solver::Summary* const summary) const {
+                               ceres::Solver::Summary* const summary,
+                               Eigen::Matrix3d* cov /* = nullptr*/) const {
   double ceres_pose_estimate[3] = {initial_pose_estimate.translation().x(),
                                    initial_pose_estimate.translation().y(),
                                    initial_pose_estimate.rotation().angle()};
@@ -105,23 +106,22 @@ void CeresScanMatcher2D::Match(const Eigen::Vector2d& target_translation,
   *pose_estimate = transform::Rigid2d(
       {ceres_pose_estimate[0], ceres_pose_estimate[1]}, ceres_pose_estimate[2]);
 
-  LOG(INFO) << "About to compute the covariance!\n";
+  if (cov) {
+    LOG(INFO) << "About to compute the covariance!\n";
 
-  // Estimate covariance
-  ceres::Covariance::Options options;
-  ceres::Covariance covariance(options);
+    // Estimate covariance
+    ceres::Covariance::Options options;
+    ceres::Covariance covariance(options);
 
-  std::vector<std::pair<const double*, const double*> > covariance_blocks;
-  covariance_blocks.push_back(
-      std::make_pair(ceres_pose_estimate, ceres_pose_estimate));
+    std::vector<std::pair<const double*, const double*> > covariance_blocks;
+    covariance_blocks.push_back(
+        std::make_pair(ceres_pose_estimate, ceres_pose_estimate));
 
-  CHECK(covariance.Compute(covariance_blocks, &problem));
+    CHECK(covariance.Compute(covariance_blocks, &problem));
 
-  Eigen::Matrix3d pose_cov;
-  covariance.GetCovarianceBlock(ceres_pose_estimate, ceres_pose_estimate,
-                                pose_cov.data());
-
-  LOG(INFO) << "Computed the covariance: " << pose_cov << "\n";
+    covariance.GetCovarianceBlock(ceres_pose_estimate, ceres_pose_estimate,
+                                  cov->data());
+  }
 }
 
 }  // namespace scan_matching

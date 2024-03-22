@@ -83,10 +83,13 @@ std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
 
   auto pose_observation = absl::make_unique<transform::Rigid2d>();
   ceres::Solver::Summary summary;
+  Eigen::Matrix3d cov;
   ceres_scan_matcher_.Match(pose_prediction.translation(), initial_ceres_pose,
                             filtered_gravity_aligned_point_cloud,
                             *matching_submap->grid(), pose_observation.get(),
-                            &summary);
+                            &summary, &cov);
+  LOG(INFO) << "Computed variances (m^2, m^2, rad^2): "
+            << cov.diagonal().transpose();
   if (pose_observation) {
     kCeresScanMatcherCostMetric->Observe(summary.final_cost);
     const double residual_distance =
