@@ -258,5 +258,10 @@ PoseExtrapolator::ExtrapolatePosesWithGravity(
                              EstimateGravityOrientation(times.back())};
 }
 
+Eigen::Vector3d PoseExtrapolator::GetLinearVelocityFromPoses() const { return linear_velocity_from_poses_; }
+Eigen::Vector3d PoseExtrapolator::GetAngularVelocityFromPoses() const { return angular_velocity_from_poses_; }
+Eigen::Vector3d PoseExtrapolator::GetLinearVelocityFromOdometry() const { return linear_velocity_from_odometry_; }
+Eigen::Vector3d PoseExtrapolator::GetAngularVelocityFromOdometry() const { return angular_velocity_from_odometry_; }
+
 }  // namespace mapping
 }  // namespace cartographer

@@ -62,6 +62,12 @@ class PoseExtrapolator : public PoseExtrapolatorInterface {
   // the tracking frame into a gravity aligned frame.
   Eigen::Quaterniond EstimateGravityOrientation(common::Time time) override;
 
+  // Returns the current linear velocity estimate from extrapolation
+  Eigen::Vector3d GetLinearVelocityFromPoses() const;
+  Eigen::Vector3d GetAngularVelocityFromPoses() const;
+  Eigen::Vector3d GetLinearVelocityFromOdometry() const;
+  Eigen::Vector3d GetAngularVelocityFromOdometry() const;
+
  private:
   void UpdateVelocitiesFromPoses();
   void TrimImuData();
